@@ -19,6 +19,7 @@ message CalculatorResponse {
 }
 
 service CalculatorService {
-    rpc Sum(CalculatorRequest) returns (CalculatorResponse) {};
+    rpc Sum (CalculatorRequest) returns (CalculatorResponse) {
+    };
 }
 

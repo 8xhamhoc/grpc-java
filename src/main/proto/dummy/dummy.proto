@@ -5,7 +5,9 @@ package dummy;
 option java_package = "com.proto.dummy"; // Java package
 option java_multiple_files = true; // Create multiple Java files
 
-message DummyMessage {}
+message DummyMessage {
+}
 
-service DummyService {}
+service DummyService {
+}
 
