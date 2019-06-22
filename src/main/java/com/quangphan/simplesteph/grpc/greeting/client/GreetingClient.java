@@ -5,7 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
-import java.sql.Time;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +21,8 @@ public class GreetingClient {
 
 //        doUnaryCall(channel);
 //        doServerStreamCall(channel);
-        doClientStreamCall(channel);
+//        doClientStreamCall(channel);
+        doBidiStreamCall(channel);
 
         channel.shutdown();
     }
@@ -86,6 +87,54 @@ public class GreetingClient {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private void doBidiStreamCall(ManagedChannel channel) {
+
+        GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(channel);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<GreetEveryoneRequest> requestObserver = asyncClient.greetEveryone(new StreamObserver<GreetEveryoneResponse>() {
+            @Override
+            public void onNext(GreetEveryoneResponse value) {
+                System.out.println("Response from server: " + value.getResult());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                latch.countDown();
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Server is done sending data");
+                latch.countDown();
+            }
+        });
+
+        Arrays.asList("Quang", "Dung", "Xịn", "Súp").forEach(
+                name -> {
+                    System.out.println("Sending name: " + name);
+                    requestObserver.onNext(GreetEveryoneRequest.newBuilder()
+                            .setGreeting(Greeting.newBuilder()
+                                    .setFirstName(name)
+                                    .build())
+                            .build());
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
+
+        try {
+            latch.await(3, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void doServerStreamCall(ManagedChannel channel) {

@@ -1,19 +1,18 @@
-package com.quangphan.simplesteph.grpc.greeting.server;
+package com.quangphan.simplesteph.grpc.greeting.calculator.server;
 
-import com.quangphan.simplesteph.grpc.greeting.calculator.server.CalculatorServiceImpl;
+import com.quangphan.simplesteph.grpc.greeting.server.GreetServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 import java.io.IOException;
 
-public class GreetingServer {
+public class CalculatorServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
         System.out.println("Hello gRPC");
 
-        Server server = ServerBuilder.forPort(50051)
-                .addService(new GreetServiceImpl())
+        Server server = ServerBuilder.forPort(50052)
                 .addService(new CalculatorServiceImpl())
                 .build();
 
@@ -30,6 +29,7 @@ public class GreetingServer {
         }));
 
         server.awaitTermination();
+
     }
 
 }

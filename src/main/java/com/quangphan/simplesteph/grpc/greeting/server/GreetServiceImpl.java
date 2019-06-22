@@ -29,7 +29,7 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
         String firstName = request.getGreeting().getFirstName();
 
         try {
-            for (int i=0; i<10; i++) {
+            for (int i = 0; i < 10; i++) {
                 String result = "Hello " + firstName + ", response number: " + i;
 
                 GreetManyTimesResponse response = GreetManyTimesResponse.newBuilder()
@@ -82,4 +82,30 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
         return requestObserver;
     }
 
+    @Override
+    public StreamObserver<GreetEveryoneRequest> greetEveryone(StreamObserver<GreetEveryoneResponse> responseObserver) {
+        StreamObserver<GreetEveryoneRequest> requestObserver = new StreamObserver<GreetEveryoneRequest>() {
+            @Override
+            public void onNext(GreetEveryoneRequest value) {
+                String response = "Hello " + value.getGreeting().getFirstName();
+                GreetEveryoneResponse greetEveryoneResponse = GreetEveryoneResponse.newBuilder()
+                        .setResult(response)
+                        .build();
+
+                responseObserver.onNext(greetEveryoneResponse);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onCompleted();
+            }
+        };
+
+        return requestObserver;
+    }
 }
