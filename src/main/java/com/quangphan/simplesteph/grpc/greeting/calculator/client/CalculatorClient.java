@@ -4,8 +4,10 @@ package com.quangphan.simplesteph.grpc.greeting.calculator.client;
 import com.proto.calculator.CalculatorServiceGrpc;
 import com.proto.calculator.FindMaximumRequest;
 import com.proto.calculator.FindMaximumResponse;
+import com.proto.calculator.SquareRootRequest;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Arrays;
@@ -29,7 +31,8 @@ public class CalculatorClient {
                 .usePlaintext()
                 .build();
 
-        doBidiStreamCall(channel);
+//        doBidiStreamCall(channel);
+        doErrorCall(channel);
 
         channel.shutdown();
     }
@@ -83,5 +86,22 @@ public class CalculatorClient {
         }
 
     }
+
+    private void doErrorCall(ManagedChannel channel) {
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub blockingStub = CalculatorServiceGrpc.newBlockingStub(channel);
+
+        try {
+            blockingStub.squareRoot(
+                    SquareRootRequest.newBuilder()
+                            .setNumber(-1)
+                            .build()
+            );
+        } catch (StatusRuntimeException e) {
+            System.out.println("Got an exception for square root");
+            e.printStackTrace();
+        }
+
+    }
+
 
 }

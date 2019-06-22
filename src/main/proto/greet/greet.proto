@@ -42,6 +42,14 @@ message GreetEveryoneResponse {
     string result = 1;
 }
 
+message GreetWithDeadlineRequest {
+    Greeting greeting = 1;
+}
+
+message GreetWithDeadlineResponse {
+    string result = 1;
+}
+
 service GreetService {
     rpc Greet (GreetRequest) returns (GreetResponse) {
     };
@@ -54,6 +62,9 @@ service GreetService {
 
     // Bidi Streaming
     rpc GreetEveryone(stream GreetEveryoneRequest) returns (stream GreetEveryoneResponse) {};
+
+    // This RPC will complete in no less than 300ms
+    rpc GreetWithDeadline(GreetWithDeadlineRequest) returns (GreetWithDeadlineResponse) {}
 
 }
 

@@ -1,6 +1,7 @@
 package com.quangphan.simplesteph.grpc.greeting.calculator.server;
 
 import com.proto.calculator.*;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
 public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServiceImplBase {
@@ -63,6 +64,28 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
         };
 
         return requestObserver;
+    }
+
+
+    @Override
+    public void squareRoot(SquareRootRequest request, StreamObserver<SquareRootResponse> responseObserver) {
+
+        Integer number = request.getNumber();
+
+        if (number > 0) {
+            double numberRoot = Math.sqrt(number);
+            responseObserver.onNext(SquareRootResponse.newBuilder()
+                    .setNumberRoot(numberRoot)
+                    .build());
+            responseObserver.onCompleted();
+        } else {
+            responseObserver.onError(
+                    Status.INVALID_ARGUMENT
+                    .withDescription("The number being send is not positive")
+                    .augmentDescription("Number send: " + number)
+                    .asRuntimeException()
+            );
+        }
     }
 
 }
