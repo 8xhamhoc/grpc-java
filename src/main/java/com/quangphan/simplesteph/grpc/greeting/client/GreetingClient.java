@@ -5,6 +5,10 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import java.sql.Time;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 public class GreetingClient {
 
     ManagedChannel channel;
@@ -25,27 +29,63 @@ public class GreetingClient {
     private void doClientStreamCall(ManagedChannel channel) {
         GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(channel);
 
-        asyncClient.longGreet(new StreamObserver<LongGreetResponse>() {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<LongGreetRequest> requestObserver = asyncClient.longGreet(new StreamObserver<LongGreetResponse>() {
             @Override
             public void onNext(LongGreetResponse value) {
-                // we get reponse from server
-
+                // we get a response from the server
+                System.out.println("Received a response from the server");
+                System.out.println(value.getResult());
                 // onNext will be called only once
             }
 
             @Override
             public void onError(Throwable t) {
-                // we get error from server
+                // we get an error from the server
             }
 
             @Override
             public void onCompleted() {
-                // the server done sending us data
-
-                // onComplete will be called right after onNext()
+                // the server is done sending us data
+                // onCompleted will be called right after onNext()
+                System.out.println("Server has completed sending us something");
+                latch.countDown();
             }
         });
 
+        // streaming message #1
+        System.out.println("sending message 1");
+        requestObserver.onNext(LongGreetRequest.newBuilder()
+                .setGreeting(Greeting.newBuilder()
+                        .setFirstName("Stephane")
+                        .build())
+                .build());
+
+        // streaming message #2
+        System.out.println("sending message 2");
+        requestObserver.onNext(LongGreetRequest.newBuilder()
+                .setGreeting(Greeting.newBuilder()
+                        .setFirstName("John")
+                        .build())
+                .build());
+
+        // streaming message #3
+        System.out.println("sending message 3");
+        requestObserver.onNext(LongGreetRequest.newBuilder()
+                .setGreeting(Greeting.newBuilder()
+                        .setFirstName("Marc")
+                        .build())
+                .build());
+
+        // we tell the server that the client is done sending data
+        requestObserver.onCompleted();
+
+        try {
+            latch.await(3L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void doServerStreamCall(ManagedChannel channel) {
