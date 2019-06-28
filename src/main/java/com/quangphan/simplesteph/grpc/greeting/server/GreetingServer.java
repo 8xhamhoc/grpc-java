@@ -4,6 +4,7 @@ import com.quangphan.simplesteph.grpc.greeting.calculator.server.CalculatorServi
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
+import java.io.File;
 import java.io.IOException;
 
 public class GreetingServer {
@@ -12,9 +13,19 @@ public class GreetingServer {
 
         System.out.println("Hello gRPC");
 
-        Server server = ServerBuilder.forPort(50051)
+        // Plaintext server
+        /*Server server = ServerBuilder.forPort(50051)
                 .addService(new GreetServiceImpl())
                 .addService(new CalculatorServiceImpl())
+                .build();*/
+
+
+        Server server = ServerBuilder.forPort(50051)
+                .addService(new GreetServiceImpl())
+                .useTransportSecurity(
+                        new File("ssl/server.crt"),
+                        new File("ssl/server.pem")
+                )
                 .build();
 
         server.start();
